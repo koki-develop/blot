@@ -205,7 +205,19 @@ func TestRootCommandRejects(t *testing.T) {
 		{
 			name:    "a positional argument",
 			args:    []string{"file.txt"},
-			wantErr: `unknown command "file.txt" for "blot"`,
+			wantErr: `blot reads standard input and takes no arguments: try "blot < file.txt"`,
+		},
+		{
+			// The suggestion is written from the first argument, since that is
+			// the file someone meant to have read.
+			name:    "several positional arguments",
+			args:    []string{"one.txt", "two.txt"},
+			wantErr: `blot reads standard input and takes no arguments: try "blot < one.txt"`,
+		},
+		{
+			name:    "a positional argument alongside a flag",
+			args:    []string{"--fill", "#", "file.txt"},
+			wantErr: `blot reads standard input and takes no arguments: try "blot < file.txt"`,
 		},
 		{
 			name:    "an unknown flag",

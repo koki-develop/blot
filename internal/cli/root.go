@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 
 	mask "github.com/koki-develop/mask-go"
@@ -20,7 +21,7 @@ func NewRootCommand() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:          "blot",
-		Args:         cobra.NoArgs,
+		Args:         noArgs,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			r, err := newRedactor(
@@ -43,6 +44,21 @@ func NewRootCommand() *cobra.Command {
 	cmd.Flags().StringVar(&replaceFlag, "replace", "", "string to replace each masked value with, discarding its length")
 
 	return cmd
+}
+
+// noArgs turns down whatever blot is given on the command line, since it reads
+// standard input and nothing else.
+//
+// cobra.NoArgs reports an unknown command, which points away from the mistake:
+// blot has no subcommands, so an argument here is a file someone meant to have
+// read rather than a command they got wrong. What they meant is written back to
+// them instead.
+func noArgs(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return nil
+	}
+	return fmt.Errorf("%s reads standard input and takes no arguments: try %q",
+		cmd.CommandPath(), cmd.CommandPath()+" < "+args[0])
 }
 
 func Execute() error {

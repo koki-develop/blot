@@ -20,7 +20,12 @@ func NewRootCommand(version string) *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:          "blot",
+		Use:  "blot",
+		Long: "Reads standard input, redacts every credential it finds and writes the result to standard output.",
+		Example: `  $ echo 'GITHUB_TOKEN=ghp_0123456789abcdefghijklmnopqrstuvwxyz' | blot
+  GITHUB_TOKEN=****************************************
+
+  $ blot < app.log > redacted.log`,
 		Version:      version,
 		Args:         noArgs,
 		SilenceUsage: true,

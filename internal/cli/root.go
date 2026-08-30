@@ -51,8 +51,7 @@ func NewRootCommand() *cobra.Command {
 //
 // cobra.NoArgs reports an unknown command, which points away from the mistake:
 // blot has no subcommands, so an argument here is a file someone meant to have
-// read rather than a command they got wrong. What they meant is written back to
-// them instead.
+// read rather than a command they got wrong.
 func noArgs(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return nil

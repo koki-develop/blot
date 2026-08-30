@@ -7,9 +7,8 @@ import (
 )
 
 // TestNewRedactor covers which redactor the flags select and what it does to a
-// value, since mask.Redactor is an interface whose implementation is not
-// otherwise observable: every case here states a value and what the redactor
-// must turn it into.
+// value. mask.Redactor is an interface with nothing observable on it but
+// Redact, so every case states a value and what it must come back as.
 func TestNewRedactor(t *testing.T) {
 	t.Parallel()
 
@@ -19,13 +18,13 @@ func TestNewRedactor(t *testing.T) {
 		replace    string
 		fillSet    bool
 		replaceSet bool
-		value      string // the text handed to the redactor
-		want       string // what the redactor must return for that text
+		value      string
+		want       string
 		wantErr    string // the exact error expected, or empty for none
 	}{
 		// --fill, unset and set. Fill repeats its character once per rune of
-		// the value, so a value of three runes written in five bytes is
-		// redacted to three characters and not to five.
+		// the value, so three runes are redacted to three characters however
+		// many bytes they were written in.
 		{
 			name:  "default fills with an asterisk per rune",
 			fill:  "*",
@@ -129,9 +128,9 @@ func TestNewRedactor(t *testing.T) {
 			wantErr: `--fill must be a single character: "\xe3\x81"`,
 		},
 
-		// --replace. Length does not survive, and the flag being given is what
-		// selects it: an empty replacement asks for the value to be dropped,
-		// which is what the flag left alone also holds.
+		// --replace. The flag being given is what selects it: an empty
+		// replacement asks for the value to be dropped, which is what the flag
+		// left alone also holds.
 		{
 			name:       "replace substitutes a fixed string",
 			replace:    "[REDACTED]",
@@ -154,9 +153,7 @@ func TestNewRedactor(t *testing.T) {
 			want:       "",
 		},
 
-		// Both flags. The conflict is reported before either value is read, so
-		// a --fill that would not have passed on its own is not what is
-		// reported.
+		// Both flags.
 		{
 			name:       "fill and replace together are rejected",
 			fill:       "#",

@@ -9,8 +9,8 @@ import (
 	"testing/iotest"
 )
 
-// Credentials the built-in patterns locate, used to check that the patterns are
-// wired up rather than to test the patterns themselves, which mask-go does.
+// Credentials the built-in patterns locate, enough of them to say the patterns
+// are wired up. mask-go is what holds each pattern to its grammar.
 const (
 	awsKey      = "AKIA0123456789ABCDEF"
 	githubToken = "ghp_0123456789abcdefghijklmnopqrstuvwxyz"
@@ -108,8 +108,6 @@ func TestRootCommandMasks(t *testing.T) {
 			want: "\n\n" + strings.Repeat("*", len(githubToken)) + "\n\n",
 		},
 		{
-			// The stream is bytes rather than text, and what carries no
-			// credential comes back as it went in.
 			name: "bytes that are not utf-8 are passed through",
 			src:  "\x00\xff\xfe\x80binary\x00\n",
 			want: "\x00\xff\xfe\x80binary\x00\n",
@@ -154,8 +152,8 @@ func TestRootCommandFlags(t *testing.T) {
 			want: "token=" + strings.Repeat("#", n) + " end\n",
 		},
 		{
-			// Length is counted in runes, so the redaction stands for as many
-			// characters as the credential held and takes more bytes than it.
+			// The fill stands for as many characters as the credential held,
+			// counted in runes rather than bytes.
 			name: "fill takes a multibyte character",
 			args: []string{"--fill", "█"},
 			want: "token=" + strings.Repeat("█", n) + " end\n",
@@ -166,8 +164,7 @@ func TestRootCommandFlags(t *testing.T) {
 			want: "token=[REDACTED] end\n",
 		},
 		{
-			// An empty replacement is a replacement, and the text either side
-			// of the credential is spliced together.
+			// An empty replacement is a replacement, not the flag left alone.
 			name: "replace with an empty string removes the value",
 			args: []string{"--replace", ""},
 			want: "token= end\n",
@@ -191,9 +188,8 @@ func TestRootCommandFlags(t *testing.T) {
 }
 
 // TestRootCommandRejects covers the arguments the command turns down. Each is
-// turned down before anything is read, so nothing reaches stdout: a run that
-// wrote half its input and then failed would be a run that released
-// credentials the flags never settled how to redact.
+// turned down before anything is read, so a run that failed halfway never
+// releases credentials the flags had not settled how to redact.
 func TestRootCommandRejects(t *testing.T) {
 	t.Parallel()
 
@@ -208,8 +204,7 @@ func TestRootCommandRejects(t *testing.T) {
 			wantErr: `blot reads standard input and takes no arguments: try "blot < file.txt"`,
 		},
 		{
-			// The suggestion is written from the first argument, since that is
-			// the file someone meant to have read.
+			// The suggestion is written from the first argument.
 			name:    "several positional arguments",
 			args:    []string{"one.txt", "two.txt"},
 			wantErr: `blot reads standard input and takes no arguments: try "blot < one.txt"`,
@@ -260,8 +255,8 @@ func TestRootCommandRejects(t *testing.T) {
 			if !strings.Contains(stderr, tt.wantErr) {
 				t.Errorf("stderr = %q, want it to hold %q", stderr, tt.wantErr)
 			}
-			// SilenceUsage is set: an error is a mistake in the arguments, not
-			// a request for the usage text.
+			// SilenceUsage: a mistake in the arguments is not a request for
+			// the usage text.
 			if strings.Contains(stderr, "Usage:") {
 				t.Errorf("stderr = %q, want no usage text", stderr)
 			}
@@ -276,9 +271,7 @@ func TestRootCommandRejects(t *testing.T) {
 func TestRootCommandChunking(t *testing.T) {
 	t.Parallel()
 
-	// readSize is how much mask-go's Reader asks for at a time. A credential
-	// laid across that boundary is the case a stream that scanned each read
-	// alone would let through.
+	// readSize is how much mask-go's Reader asks for at a time.
 	const readSize = 4 << 10
 
 	inputs := []struct {
@@ -405,13 +398,9 @@ func TestRootCommandHelp(t *testing.T) {
 }
 
 // TestNewRootCommandIsIndependent holds NewRootCommand to returning a command
-// that carries nothing over from another.
-//
-// cobra records on the command whether a flag was given, and that record is
-// what tells --replace with an empty string from --replace left alone. A
-// command shared between runs, or flags stored outside it, would have the
-// second run reading the flags of the first: a run after one that gave
-// --replace would redact by replacement without having been asked to.
+// that carries nothing over from another. A command shared between runs, or
+// flags stored outside it, would have a run after one that gave --replace
+// redact by replacement without having been asked to.
 func TestNewRootCommandIsIndependent(t *testing.T) {
 	t.Parallel()
 

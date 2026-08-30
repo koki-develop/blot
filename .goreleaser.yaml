@@ -9,7 +9,8 @@ before:
     - go generate ./...
 
 builds:
-  - main: ./...
+  # Not ./...: that would build cmd/formula as a release binary too.
+  - main: .
     env:
       - CGO_ENABLED=0
     goos:

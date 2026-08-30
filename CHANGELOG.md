@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/koki-develop/blot/compare/v0.1.0...v0.2.0) (2026-08-30)
+
+
+### Features
+
+* Bump github.com/koki-develop/mask-go from 0.1.0 to 0.2.0 ([23c344a](https://github.com/koki-develop/blot/commit/23c344a156689272458eb8c836e41c86ef848ef2))
+
 ## [0.1.0](https://github.com/koki-develop/blot/compare/v0.0.3...v0.1.0) (2026-08-30)
 
 

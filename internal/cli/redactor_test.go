@@ -105,7 +105,7 @@ func TestNewRedactor(t *testing.T) {
 		},
 		{
 			name:    "fill rejects a zero width joiner sequence",
-			fill:    "\U0001F468‍\U0001F469‍\U0001F466",
+			fill:    "\U0001F468\u200d\U0001F469\u200d\U0001F466",
 			fillSet: true,
 			wantErr: `--fill must be a single character: "👨\u200d👩\u200d👦"`,
 		},

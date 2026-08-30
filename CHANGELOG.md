@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3](https://github.com/koki-develop/blot/compare/v0.0.2...v0.0.3) (2026-08-30)
+
+
+### Features
+
+* Add a --version flag ([0d87f19](https://github.com/koki-develop/blot/commit/0d87f19d927b67a3cd74afc958da1795c27fe09a))
+* Release v0.0.3 ([15aa210](https://github.com/koki-develop/blot/commit/15aa210a0c78f9b874b2b16933894374dd28473c))
+
 ## [0.0.2](https://github.com/koki-develop/blot/compare/v0.0.1...v0.0.2) (2026-08-30)
 
 

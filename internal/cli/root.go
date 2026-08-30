@@ -13,7 +13,7 @@ import (
 // Each call is independent: cobra records on the command whether a flag was
 // given, so a command run twice would read the flags of the first run in the
 // second.
-func NewRootCommand() *cobra.Command {
+func NewRootCommand(version string) *cobra.Command {
 	var (
 		fillFlag    string
 		replaceFlag string
@@ -21,6 +21,7 @@ func NewRootCommand() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:          "blot",
+		Version:      version,
 		Args:         noArgs,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -60,6 +61,8 @@ func noArgs(cmd *cobra.Command, args []string) error {
 		cmd.CommandPath(), cmd.CommandPath()+" < "+args[0])
 }
 
-func Execute() error {
-	return NewRootCommand().Execute()
+// Execute runs blot. stamped is the version goreleaser wrote into the binary,
+// empty in a build it did not make.
+func Execute(stamped string) error {
+	return NewRootCommand(resolveVersion(stamped, moduleVersion())).Execute()
 }

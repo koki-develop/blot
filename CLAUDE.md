@@ -25,7 +25,7 @@ goreleaser check && goreleaser release --snapshot --clean  # what CI's build job
 - `cmd/formula/` prints the Homebrew formula for an already-published version. It is never released
   (`.goreleaser.yaml` sets `main: .`), and its `archives` list must match that file's archive
   `name_template`.
-- Tests drive the command through `NewRootCommand()` with buffers, so I/O must go through
+- Tests drive the command through `NewRootCommand(version)` with buffers, so I/O must go through
   `cmd.InOrStdin()` / `cmd.OutOrStdout()`, never `os.Stdin` / `os.Stdout`.
 - release-please owns the version and creates a **draft** release; goreleaser uploads the assets and
   publishes that draft. Never bump a version by hand.

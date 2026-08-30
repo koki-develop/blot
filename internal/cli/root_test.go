@@ -17,12 +17,15 @@ const (
 	jwt         = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abc123"
 )
 
+// testVersion stands in for whatever version the binary was built as.
+const testVersion = "1.2.3"
+
 // run executes a fresh command over stdin and reports what it wrote where.
 func run(t *testing.T, stdin io.Reader, args ...string) (stdout, stderr string, err error) {
 	t.Helper()
 
 	var out, errOut bytes.Buffer
-	cmd := NewRootCommand()
+	cmd := NewRootCommand(testVersion)
 	cmd.SetIn(stdin)
 	cmd.SetOut(&out)
 	cmd.SetErr(&errOut)
@@ -372,7 +375,7 @@ func TestRootCommandWriteError(t *testing.T) {
 
 	wantErr := errors.New("write failed")
 
-	cmd := NewRootCommand()
+	cmd := NewRootCommand(testVersion)
 	cmd.SetIn(strings.NewReader("token=" + githubToken + "\n"))
 	cmd.SetOut(errWriter{err: wantErr})
 	cmd.SetErr(io.Discard)
@@ -390,10 +393,40 @@ func TestRootCommandHelp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Execute() error = %v, want nil", err)
 	}
-	for _, want := range []string{"blot", "--fill", "--replace"} {
+	for _, want := range []string{"blot", "--fill", "--replace", "--version"} {
 		if !strings.Contains(stdout, want) {
 			t.Errorf("help output = %q, want it to hold %q", stdout, want)
 		}
+	}
+}
+
+// TestRootCommandVersion covers --version, which reports and stops: a run that
+// printed the version and went on to read standard input would hang on a
+// terminal.
+func TestRootCommandVersion(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{name: "long flag", args: []string{"--version"}},
+		{name: "shorthand", args: []string{"-v"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			src := "token=" + githubToken + "\n"
+			stdout, _, err := run(t, strings.NewReader(src), tt.args...)
+			if err != nil {
+				t.Fatalf("Execute() error = %v, want nil", err)
+			}
+			if want := "blot version " + testVersion + "\n"; stdout != want {
+				t.Errorf("output = %q, want %q", stdout, want)
+			}
+		})
 	}
 }
 
@@ -444,7 +477,7 @@ func TestNewRootCommandIsIndependent(t *testing.T) {
 	t.Run("two commands do not share flag storage", func(t *testing.T) {
 		t.Parallel()
 
-		a, b := NewRootCommand(), NewRootCommand()
+		a, b := NewRootCommand(testVersion), NewRootCommand(testVersion)
 		if err := a.Flags().Set("fill", "#"); err != nil {
 			t.Fatalf("Set() error = %v", err)
 		}

@@ -1,57 +1,50 @@
 package cli
 
 import (
-	"errors"
-	"fmt"
 	"io"
-	"unicode/utf8"
 
 	mask "github.com/koki-develop/mask-go"
 	"github.com/spf13/cobra"
 )
 
-var (
-	fillFlag    string
-	replaceFlag string
-)
+// NewRootCommand returns a fresh blot command, with flags of its own.
+//
+// Each call is independent: cobra records on the command whether a flag was
+// given, so a command run twice would read the flags of the first run in the
+// second.
+func NewRootCommand() *cobra.Command {
+	var (
+		fillFlag    string
+		replaceFlag string
+	)
 
-var rootCmd = &cobra.Command{
-	Use:          "blot",
-	Args:         cobra.NoArgs,
-	SilenceUsage: true,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		r, err := redactor(cmd)
-		if err != nil {
+	cmd := &cobra.Command{
+		Use:          "blot",
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			r, err := newRedactor(
+				fillFlag, replaceFlag,
+				cmd.Flags().Changed("fill"), cmd.Flags().Changed("replace"),
+			)
+			if err != nil {
+				return err
+			}
+			m := mask.New(
+				mask.WithPatterns(mask.AllBuiltinPatterns()...),
+				mask.WithRedactor(r),
+			)
+			_, err = io.Copy(cmd.OutOrStdout(), mask.NewReader(cmd.InOrStdin(), m))
 			return err
-		}
-		m := mask.New(
-			mask.WithPatterns(mask.AllBuiltinPatterns()...),
-			mask.WithRedactor(r),
-		)
-		_, err = io.Copy(cmd.OutOrStdout(), mask.NewReader(cmd.InOrStdin(), m))
-		return err
-	},
-}
+		},
+	}
 
-func redactor(cmd *cobra.Command) (mask.Redactor, error) {
-	if cmd.Flags().Changed("fill") && cmd.Flags().Changed("replace") {
-		return nil, errors.New("--fill and --replace cannot be used together")
-	}
-	if cmd.Flags().Changed("replace") {
-		return mask.Fixed(replaceFlag), nil
-	}
-	r, size := utf8.DecodeRuneInString(fillFlag)
-	if size != len(fillFlag) || (r == utf8.RuneError && size <= 1) {
-		return nil, fmt.Errorf("--fill must be a single character: %q", fillFlag)
-	}
-	return mask.Fill(r), nil
-}
+	cmd.Flags().StringVar(&fillFlag, "fill", "*", "character to repeat over each masked value, preserving its length")
+	cmd.Flags().StringVar(&replaceFlag, "replace", "", "string to replace each masked value with, discarding its length")
 
-func init() {
-	rootCmd.Flags().StringVar(&fillFlag, "fill", "*", "character to repeat over each masked value, preserving its length")
-	rootCmd.Flags().StringVar(&replaceFlag, "replace", "", "string to replace each masked value with, discarding its length")
+	return cmd
 }
 
 func Execute() error {
-	return rootCmd.Execute()
+	return NewRootCommand().Execute()
 }

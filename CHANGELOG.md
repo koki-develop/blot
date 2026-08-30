@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/koki-develop/blot/compare/v0.0.3...v0.1.0) (2026-08-30)
+
+
+### Features
+
+* Release v0.1.0 ([6d3383f](https://github.com/koki-develop/blot/commit/6d3383fc09c442decef3643b87e1c018ba124a13))
+
 ## [0.0.3](https://github.com/koki-develop/blot/compare/v0.0.2...v0.0.3) (2026-08-30)
 
 

@@ -26,7 +26,7 @@ var archives = []string{
 }
 
 var formula = template.Must(template.New("formula").Parse(`class Blot < Formula
-  desc "Redact secrets from text on standard input"
+  desc "Secret masking filter"
   homepage "https://github.com/koki-develop/blot"
   version "{{ .Version }}"
   license "MIT"

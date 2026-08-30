@@ -1,4 +1,23 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>koki-develop/renovate-config"]
+  "extends": ["github>koki-develop/renovate-config"],
+  "semanticCommits": "enabled",
+  "packageRules": [
+    {
+      "description": "mask-go owns every pattern blot redacts, so its releases ship without waiting out the shared minimum release age.",
+      "matchPackageNames": ["github.com/koki-develop/mask-go"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "A mask-go major or minor release adds or changes redaction behaviour, which is a feature of blot itself.",
+      "matchPackageNames": ["github.com/koki-develop/mask-go"],
+      "matchUpdateTypes": ["major", "minor"],
+      "semanticCommitType": "feat"
+    },
+    {
+      "matchPackageNames": ["github.com/koki-develop/mask-go"],
+      "matchUpdateTypes": ["patch"],
+      "semanticCommitType": "fix"
+    }
+  ]
 }

@@ -3,7 +3,7 @@ module github.com/koki-develop/blot
 go 1.27.0
 
 require (
-	github.com/koki-develop/mask-go v0.2.0
+	github.com/koki-develop/mask-go v0.4.0
 	github.com/spf13/cobra v1.10.2
 )
 

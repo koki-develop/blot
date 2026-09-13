@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/koki-develop/blot/compare/v0.2.0...v0.3.0) (2026-09-13)
+
+
+### Features
+
+* **deps:** update module github.com/koki-develop/mask-go to v0.5.0 ([#9](https://github.com/koki-develop/blot/issues/9)) ([1da55bb](https://github.com/koki-develop/blot/commit/1da55bb9f1b2682e5e554e65b630aa29473b5093))
+
 ## [0.2.0](https://github.com/koki-develop/blot/compare/v0.1.0...v0.2.0) (2026-09-11)
 
 

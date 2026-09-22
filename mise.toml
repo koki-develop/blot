@@ -3,7 +3,7 @@ betterleaks = "1.8.1"
 go = "1.26.6"
 golangci-lint = "2.13.2"
 goreleaser = "2.18.1"
-lefthook = "2.1.12"
+lefthook = "2.1.14"
 
 [tasks.bootstrap]
 run = ["lefthook install"]
